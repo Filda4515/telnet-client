@@ -27,10 +27,11 @@ public class TelnetClient {
                     try {
                         String userInput;
                         while ((userInput = userReader.readLine()) != null) {
-                            writer.println(userInput);
                             if (userInput.equals("/QUIT")) {
+                                socket.close();
                                 break;
                             }
+                            writer.println(userInput);
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -45,12 +46,11 @@ public class TelnetClient {
                         String serverResponse;
                         while ((serverResponse = reader.readLine()) != null) {
                             System.out.println(serverResponse);
-                            if (serverResponse.equals("/QUIT")) {
-                                break;
-                            }
                         }
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        if (!socket.isClosed()) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             };
@@ -60,10 +60,10 @@ public class TelnetClient {
 
             inputThread.join();
             outputThread.join();
-
+            
+            userReader.close();
             reader.close();
             writer.close();
-            socket.close();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
